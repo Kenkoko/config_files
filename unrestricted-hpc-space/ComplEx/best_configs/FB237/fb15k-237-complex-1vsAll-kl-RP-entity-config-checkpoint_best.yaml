@@ -1,0 +1,73 @@
+complex:
+  entity_embedder:
+    dropout: -0.1261229570955038
+    regularize_weight: 0.001110460048409133
+  relation_embedder:
+    dropout: -0.391885245218873
+    regularize_weight: 6.373118556578366e-05
+dataset:
+  name: fb15k-237
+  num_entities: 14541
+  num_relations: 237
+entity_ranking:
+  metrics_per:
+    entity_prediction: true
+    head_and_tail: true
+    relation_prediction: true
+    relation_type: true
+  query_types:
+    so_to_p: true
+eval:
+  batch_size: 256
+import:
+- complex
+- reciprocal_relations_model
+lookup_embedder:
+  dim: 512
+  initialize: xavier_uniform_
+  initialize_args:
+    normal_:
+      mean: 0.0
+      std: 0.000467777199326223
+    uniform_:
+      a: -0.23497108418269075
+    xavier_normal_:
+      gain: 1.0
+    xavier_uniform_:
+      gain: 1.0
+  regularize: ''
+model: complex
+modules:
+- kge.model
+- kge.job
+- kge.model.embedder
+negative_sampling:
+  implementation: batch
+reciprocal_relations_model:
+  base_model:
+    type: complex
+train:
+  auto_correct: true
+  batch_size: 128
+  loss_arg: .nan
+  lr_scheduler: ReduceLROnPlateau
+  lr_scheduler_args:
+    factor: 0.95
+    mode: max
+    patience: 3
+    threshold: 0.0001
+  max_epochs: 400
+  optimizer:
+    default:
+      args:
+        lr: 0.002509945900994084
+  subbatch_auto_tune: true
+  type: 1vsAll
+valid:
+  early_stopping:
+    patience: 10
+    threshold:
+      epochs: 50
+      metric_value: 0.05
+  metric: mean_reciprocal_rank_filtered_with_test_relation
+

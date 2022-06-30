@@ -1,0 +1,78 @@
+1vsAll:
+  query_types:
+    s_o: true
+  query_weight:
+    s_o: 0.4735295254644007
+complex:
+  entity_embedder:
+    dropout: 0.4753393745049834
+    regularize_weight: 2.820849654387234e-18
+  relation_embedder:
+    dropout: 0.49024499859660864
+    regularize_weight: 7.664456914924019e-16
+dataset:
+  name: wnrr
+  num_entities: 40943
+  num_relations: 11
+entity_ranking:
+  metrics_per:
+    entity_prediction: true
+    head_and_tail: true
+    relation_prediction: true
+    relation_type: true
+  query_types:
+    so_to_p: true
+eval:
+  batch_size: 256
+import:
+- reciprocal_relations_model
+- complex
+lookup_embedder:
+  dim: 128
+  initialize: xavier_normal_
+  initialize_args:
+    normal_:
+      mean: 0.0
+      std: 0.02550878138609953
+    uniform_:
+      a: -0.7880745451478287
+    xavier_normal_:
+      gain: 1.0
+    xavier_uniform_:
+      gain: 1.0
+model: reciprocal_relations_model
+modules:
+- kge.model.embedder
+- kge.job
+- kge.model
+negative_sampling:
+  implementation: batch
+reciprocal_relations_model:
+  base_model:
+    type: complex
+train:
+  auto_correct: true
+  batch_size: 1024
+  loss_arg: .nan
+  lr_scheduler: ReduceLROnPlateau
+  lr_scheduler_args:
+    factor: 0.95
+    mode: max
+    patience: 4
+    threshold: 0.0001
+  max_epochs: 400
+  optimizer:
+    default:
+      args:
+        lr: 0.0005896547522643507
+      type: Adam
+  subbatch_auto_tune: true
+  type: 1vsAll
+valid:
+  early_stopping:
+    patience: 10
+    threshold:
+      epochs: 50
+      metric_value: 0.05
+  metric: mean_reciprocal_rank_filtered_with_test_entity
+
